@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodejsapppod
+  namespace: test-ns
+  labels:
+    app: nodejsapp
+spec:
+  containers:
+  - name: nodejsappcontainer
+    image: dockerhandson/node-app-mss:1
+    ports:
+    - containerPort: 9981
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejsappsvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 9981
+    nodePort: 30001
+  selector:
+    app: nodejsapp

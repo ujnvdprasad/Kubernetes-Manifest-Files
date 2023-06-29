@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nodejsapprc
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    app: nodejsapp
+  template:
+    metadata:
+      name: nodejspod
+      labels:
+        app: nodejsapp
+    spec:
+      containers:
+      - name: nodejsappcontainer
+        image: dockerhandson/node-app-mss:1
+        ports:
+        - containerPort: 9981
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejsappsvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector:
+    app: nodejsapp
+  ports:
+  - port: 80
+    targetPort: 9981
+    nodePort: 30001
