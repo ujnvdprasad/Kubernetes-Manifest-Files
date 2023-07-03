@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebappdeployment
+spec:
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      labels:
+        app: javawebapp
+      name: javawebapppod
+    spec:
+      containers:
+      - name: javawebappcontainer
+        image: dockerhandson/java-web-app:1
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "400Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: configmapvol
+          mountPath: "/usr/local/tomcat/conf/tomcat-users.xml"
+          subPath: "tomcat-users.xml"
+      volumes:
+      - name: configmapvol
+        configMap:
+          name: javawebapptomcatconf
+          items:
+          - key: "tomcat-users.xml"
+            path: "tomcat-users.xml"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: javawebappsvc
+spec:
+  type: NodePort
+  selector:
+    app: javawebapp
+  ports:
+    
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: javawebapptomcatconf
+data:
+  tomcat-users.xml: |
+    <?xml version='1.0' encoding='utf-8'?>
+
+    <tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+              version="1.0">
+
+    <role rolename="admin-gui"/>
+    <role rolename="manager-gui"/>
+    <user username="prasad" password="tomcat" roles="admin-gui,manager-gui"/>
+    </tomcat-users>
+
